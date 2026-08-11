@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+myenv/
+venv/
+.venv/
+
+# Django
+db.sqlite3
+*.sqlite3
+
+# Environment/secrets
+.env
+.env.*
+!.env.example
+
+# Ngrok
+ngrok-v3-stable-linux-arm64.tgz
+ngrok
+*.tgz
+
+# Static/media generated files
+staticfiles/
+media/
+
+# Editors
+.vscode/
+.idea/
+
+# OS
+.DS_Store

@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>Family Contribution Dashboard</h2>
+        <p class="text-muted">
+            Welcome, {{ user.username }}
+        </p>
+    </div>
+
+
+    <!-- Basic Statistics -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Families</h6>
+                    <h2>{{ total_families }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Contributors</h6>
+                    <h2>{{ total_contributors }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Beneficiaries</h6>
+                    <h2>{{ total_beneficiaries }}</h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Expected</h6>
+                    <h2>KES {{ total_expected }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Financial Summary -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow border-success h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Paid</h6>
+                    <h2 class="text-success">
+                        KES {{ total_paid }}
+                    </h2>
+                    <small class="text-muted">
+                        Completed payments only
+                    </small>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow border-warning h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Outstanding Balance</h6>
+                    <h2 class="text-warning">
+                        KES {{ outstanding_balance }}
+                    </h2>
+                    <small class="text-muted">
+                        Expected minus completed payments
+                    </small>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Paid Contributors</h6>
+                    <h2 class="text-success">
+                        {{ paid_contributors }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Contributors Owing</h6>
+                    <h2 class="text-danger">
+                        {{ owing_contributors }}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+
+        <!-- Payment Methods -->
+        <div class="col-md-6">
+
+            <div class="card shadow h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Payment Methods
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div style="height: 320px;">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Monthly Contributions -->
+        <div class="col-md-6">
+
+            <div class="card shadow h-100">
+
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Monthly Contributions
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div style="height: 320px;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recent Payments -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h5 class="mb-0">
+                Recent Payments
+            </h5>
+
+            <a href="{% url 'payment_list' %}"
+               class="btn btn-sm btn-primary">
+                View All
+            </a>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>Receipt</th>
+                            <th>Contributor</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for payment in recent_payments %}
+
+                        <tr>
+
+                            <td>
+                                {{ payment.receipt_number }}
+                            </td>
+
+                            <td>
+                                {{ payment.contributor.full_name }}
+                            </td>
+
+                            <td>
+                                KES {{ payment.amount }}
+                            </td>
+
+                            <td>
+                                {{ payment.payment_method }}
+                            </td>
+
+
+                            <td>
+
+                                {% if payment.status == "Completed" %}
+
+                                    <span class="badge bg-success">
+                                        Completed
+                                    </span>
+
+                                {% elif payment.status == "Pending" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+
+                                {% elif payment.status == "Failed" %}
+
+                                    <span class="badge bg-danger">
+                                        Failed
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ payment.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ payment.payment_date }}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="6"
+                                class="text-center">
+
+                                No payments recorded.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Django data for JavaScript -->
+{{ payment_methods|json_script:"payment-data" }}
+{{ monthly_payments|json_script:"monthly-data" }}
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /*
+     * PAYMENT METHODS
+     */
+
+    const paymentData =
+        JSON.parse(
+            document.getElementById("payment-data").textContent
+        );
+
+
+    const paymentLabels =
+        paymentData.map(
+            item => item.payment_method
+        );
+
+
+    const paymentValues =
+        paymentData.map(
+            item => Number(item.total)
+        );
+
+
+    const paymentCanvas =
+        document.getElementById("paymentChart");
+
+
+    if (paymentCanvas) {
+
+        new Chart(
+            paymentCanvas,
+            {
+                type: "pie",
+
+                data: {
+
+                    labels: paymentLabels,
+
+                    datasets: [{
+
+                        label: "Completed Payments",
+
+                        data: paymentValues
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom"
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * MONTHLY CONTRIBUTIONS
+     */
+
+    const monthlyData =
+        JSON.parse(
+            document.getElementById("monthly-data").textContent
+        );
+
+
+    const monthlyLabels =
+        monthlyData.map(
+            item => {
+
+                const date =
+                    new Date(item.month);
+
+                return date.toLocaleDateString(
+                    "en-US",
+                    {
+                        month: "short",
+                        year: "numeric"
+                    }
+                );
+
+            }
+        );
+
+
+    const monthlyValues =
+        monthlyData.map(
+            item => Number(item.total)
+        );
+
+
+    const monthlyCanvas =
+        document.getElementById("monthlyChart");
+
+
+    if (monthlyCanvas) {
+
+        new Chart(
+            monthlyCanvas,
+            {
+                type: "bar",
+
+                data: {
+
+                    labels: monthlyLabels,
+
+                    datasets: [{
+
+                        label:
+                            "Completed Contributions (KES)",
+
+                        data:
+                            monthlyValues
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true
+
+                        }
+
+                    },
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

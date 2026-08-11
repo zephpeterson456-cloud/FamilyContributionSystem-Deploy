@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Family{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+
+        <h3 class="text-danger">Delete Family</h3>
+
+        <p>
+            Are you sure you want to delete
+            <strong>{{ family.name }}</strong>?
+        </p>
+
+        <p class="text-danger">
+            This will also delete all contributors, beneficiaries,
+            and payments belonging to this family.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a href="{% url 'family_list' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
+

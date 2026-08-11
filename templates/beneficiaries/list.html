@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Beneficiaries{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>Beneficiaries</h2>
+
+        {% if user.is_superuser %}
+            <a href="{% url 'add_beneficiary' %}" class="btn btn-success">
+                Add Beneficiary
+            </a>
+        {% endif %}
+
+    </div>
+
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>Name</th>
+                            <th>Family</th>
+                            <th>Phone</th>
+
+                            {% if user.is_superuser %}
+                                <th>Actions</th>
+                            {% endif %}
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for beneficiary in beneficiaries %}
+
+                            <tr>
+
+                                <td>
+                                    {{ beneficiary.full_name }}
+                                </td>
+
+                                <td>
+                                    {{ beneficiary.family }}
+                                </td>
+
+                                <td>
+                                    {{ beneficiary.phone_number }}
+                                </td>
+
+
+                                {% if user.is_superuser %}
+
+                                    <td>
+
+                                        <a href="{% url 'edit_beneficiary' beneficiary.id %}"
+                                           class="btn btn-primary btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a href="{% url 'delete_beneficiary' beneficiary.id %}"
+                                           class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
+
+                                    </td>
+
+                                {% endif %}
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="{% if user.is_superuser %}4{% else %}3{% endif %}"
+                                    class="text-center">
+
+                                    No beneficiaries found.
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

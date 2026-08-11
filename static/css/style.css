@@ -1,0 +1,22 @@
+body{
+    background:#f5f6fa;
+}
+
+.nav-link{
+    border-radius:8px;
+    transition:.3s;
+}
+
+.nav-link:hover{
+    background:#0d6efd;
+    color:white !important;
+}
+
+.card{
+    border:none;
+    border-radius:15px;
+}
+
+.table{
+    background:white;
+}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Beneficiary{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h4>
+                Delete {{ beneficiary.full_name }}?
+            </h4>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <button class="btn btn-danger">
+                    Delete
+                </button>
+
+                <a href="{% url 'beneficiary_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

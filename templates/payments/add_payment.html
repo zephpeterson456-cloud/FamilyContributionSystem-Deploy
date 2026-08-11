@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Record Payment{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+            <h4>Record Payment</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label">
+                        M-Pesa Phone Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="phone"
+                        id="phone"
+                        class="form-control"
+                        placeholder="2547XXXXXXXX"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Save Payment
+                </button>
+
+
+                <a
+                    href="{% url 'payment_list' %}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

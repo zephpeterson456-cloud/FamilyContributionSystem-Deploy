@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add Contributor
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<div class="card shadow">
+
+<div class="card-header bg-primary text-white">
+<a href="{% url 'add_contributor' %}" class="btn btn-primary">Add Contributor</a>
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<button class="btn btn-success">
+
+Save Contributor
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

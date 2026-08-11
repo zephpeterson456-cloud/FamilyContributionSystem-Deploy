@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Balance Report{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h2>Contributor Balance Report</h2>
+
+<table class="table table-bordered">
+
+<thead class="table-dark">
+<tr>
+    <th>Name</th>
+    <th>Expected</th>
+    <th>Paid</th>
+    <th>Balance</th>
+    <th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for contributor in contributors %}
+
+<tr>
+    <td>{{ contributor.full_name }}</td>
+
+    <td>
+        KSh {{ contributor.amount_expected }}
+    </td>
+
+    <td>
+        KSh {{ contributor.paid_amount }}
+    </td>
+
+    <td>
+        KSh {{ contributor.balance }}
+    </td>
+
+    <td>
+
+        {% if contributor.balance <= 0 %}
+            <span class="badge bg-success">
+                Paid
+            </span>
+
+        {% elif contributor.paid_amount > 0 %}
+            <span class="badge bg-warning">
+                Partial
+            </span>
+
+        {% else %}
+            <span class="badge bg-danger">
+                Not Paid
+            </span>
+
+        {% endif %}
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

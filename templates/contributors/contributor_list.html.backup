@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Contributors{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid"><div class="d-flex justify-content-between align-items-center mb-3">
+
+    <h2>Contributors</h2>
+
+    <a href="{% url 'add_contributor' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i>
+        Add Contributor
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Family</th>
+            <th>Phone</th>
+            <th>Expected</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for contributor in contributors %}
+
+        <tr>
+
+            <td>{{ contributor.full_name }}</td>
+
+            <td>{{ contributor.family }}</td>
+
+            <td>{{ contributor.phone }}</td>
+
+            <td>KSh {{ contributor.amount_expected }}</td>
+
+            <td>
+                {% if contributor.is_active %}
+                    <span class="badge bg-success">
+                        Active
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger">
+                        Inactive
+                    </span>
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{% url 'edit_contributor' contributor.id %}"
+                   class="btn btn-warning btn-sm">
+                    Edit
+                </a>
+
+                <a href="{% url 'delete_contributor' contributor.id %}"
+                   class="btn btn-danger btn-sm">
+                    Delete
+                </a>
+            </td>
+
+        </tr>
+
+    {% empty %}
+
+        <tr>
+            <td colspan="6" class="text-center">
+                No contributors found.
+            </td>
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>{% endblock %}

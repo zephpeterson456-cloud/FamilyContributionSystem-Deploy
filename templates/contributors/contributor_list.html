@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Contributors{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>Contributors</h2>
+
+        {% if user.is_superuser %}
+            <a href="{% url 'add_contributor' %}" class="btn btn-primary">
+                Add Contributor
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Family</th>
+                            <th>Expected</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+
+                            {% if user.is_superuser %}
+                                <th>Actions</th>
+                            {% endif %}
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for contributor in contributors %}
+
+                            <tr>
+
+                                <td>
+                                    {{ contributor.full_name }}
+                                </td>
+
+                                <td>
+                                    {{ contributor.phone_number }}
+                                </td>
+
+                                <td>
+                                    {{ contributor.family }}
+                                </td>
+
+                                <td>
+                                    KSh {{ contributor.amount_expected }}
+                                </td>
+
+                                <td>
+                                    KSh {{ contributor.paid_amount }}
+                                </td>
+
+                                <td>
+                                    {% if contributor.balance <= 0 %}
+                                        <span class="text-success">
+                                            KSh 0.00
+                                        </span>
+                                    {% else %}
+                                        <span class="text-danger">
+                                            KSh {{ contributor.balance }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+
+                                    {% if contributor.payment_status == "Paid" %}
+
+                                        <span class="badge bg-success">
+                                            Paid
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-warning text-dark">
+                                            Owing
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                {% if user.is_superuser %}
+
+                                    <td>
+
+                                        <a href="{% url 'edit_contributor' contributor.id %}"
+                                           class="btn btn-primary btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a href="{% url 'delete_contributor' contributor.id %}"
+                                           class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
+
+                                    </td>
+
+                                {% endif %}
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="{% if user.is_superuser %}8{% else %}7{% endif %}"
+                                    class="text-center">
+
+                                    No contributors found.
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

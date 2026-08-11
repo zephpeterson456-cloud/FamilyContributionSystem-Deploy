@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Beneficiaries{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h3>Beneficiaries</h3>
+
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contributor</th>
+                        <th>Relationship</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for beneficiary in beneficiaries %}
+
+                    <tr>
+                        <td>{{ beneficiary.full_name }}</td>
+                        <td>{{ beneficiary.contributor.full_name }}</td>
+                        <td>{{ beneficiary.relationship }}</td>
+                        <td>{{ beneficiary.phone }}</td>
+
+                        <td>
+                            {% if beneficiary.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            No beneficiaries found.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

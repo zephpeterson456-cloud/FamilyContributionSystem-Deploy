@@ -1,6 +1,206 @@
 from django import forms
 from .models import Contributor, Family, Payment, SystemSettings
+from .models import ContributionObligation, Loan, LoanRepayment
 
+
+class ContributionObligationForm(forms.ModelForm):
+    class Meta:
+        model = ContributionObligation
+        fields = [
+            "contributor",
+            "beneficiary",
+            "amount",
+            "frequency",
+            "start_date",
+            "end_date",
+            "is_active",
+            "notes",
+        ]
+
+        widgets = {
+            "contributor": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "beneficiary": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "100",
+                    "step": "0.01",
+                }
+            ),
+
+            "frequency": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "start_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "end_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "is_active": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+
+            "notes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Optional notes",
+                }
+            ),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        contributor = cleaned_data.get("contributor")
+        beneficiary = cleaned_data.get("beneficiary")
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+
+        if beneficiary and contributor:
+            if beneficiary.contributor_id != contributor.id:
+                raise forms.ValidationError(
+                    "The selected beneficiary does not belong to this contributor."
+                )
+
+        if start_date and end_date and end_date < start_date:
+            raise forms.ValidationError(
+                "End date cannot be earlier than the start date."
+            )
+
+        return cleaned_data
+
+
+class LoanForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = [
+            "borrower",
+            "principal_amount",
+            "interest_type",
+            "interest_value",
+            "date_issued",
+            "due_date",
+            "purpose",
+            "notes",
+        ]
+
+        widgets = {
+            "borrower": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "principal_amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                }
+            ),
+
+            "interest_type": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "interest_value": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                    "placeholder": "250",
+                }
+            ),
+
+            "date_issued": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "due_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "purpose": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Purpose of the loan",
+                }
+            ),
+
+            "notes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Optional notes",
+                }
+            ),
+        }
+
+
+class LoanRepaymentForm(forms.ModelForm):
+    class Meta:
+        model = LoanRepayment
+        fields = [
+            "amount",
+            "payment_date",
+            "payment_method",
+            "reference",
+            "remarks",
+        ]
+
+        widgets = {
+            "amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                }
+            ),
+
+            "payment_date": forms.DateTimeInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "datetime-local",
+                }
+            ),
+
+            "payment_method": forms.Select(
+                attrs={"class": "form-select"}
+            ),
+
+            "reference": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Payment reference",
+                }
+            ),
+
+            "remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Optional remarks",
+                }
+            ),
+        }
 class ContributorForm(forms.ModelForm):
     class Meta:
         model = Contributor

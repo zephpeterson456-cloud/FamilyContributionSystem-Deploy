@@ -12,16 +12,20 @@ from .models import (
     Beneficiary,
     Payment,
     SystemSettings,
+    ContributionObligation,
+    Loan,
+    LoanRepayment,
 )
-
 from .forms import (
     FamilyForm,
     ContributorForm,
     BeneficiaryForm,
     PaymentForm,
     SettingsForm,
+    ContributionObligationForm,
+    LoanForm,
+    LoanRepaymentForm,
 )
-
 
 
 # ============================================================
@@ -720,5 +724,114 @@ def settings_view(request):
         "settings.html",
         {
             "form": form
+        },
+    )
+# ============================================================
+# CONTRIBUTION OBLIGATIONS
+# ============================================================
+
+@login_required
+def contribution_obligation_list(request):
+    obligations = (
+        ContributionObligation.objects
+        .select_related("contributor", "beneficiary")
+        .order_by("-is_active", "contributor__full_name")
+    )
+
+    return render(
+        request,
+        "contributions/obligation_list.html",
+        {
+            "obligations": obligations,
+        },
+    )
+
+
+@superuser_required
+def add_contribution_obligation(request):
+    if request.method == "POST":
+        form = ContributionObligationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Contribution obligation added successfully."
+            )
+
+            return redirect("contribution_obligation_list")
+    else:
+        form = ContributionObligationForm()
+
+    return render(
+        request,
+        "contributions/add_obligation.html",
+        {
+            "form": form,
+        },
+    )
+
+
+@superuser_required
+def edit_contribution_obligation(request, pk):
+    obligation = get_object_or_404(
+        ContributionObligation,
+        pk=pk,
+    )
+
+    if request.method == "POST":
+        form = ContributionObligationForm(
+            request.POST,
+            instance=obligation,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Contribution obligation updated successfully."
+            )
+
+            return redirect("contribution_obligation_list")
+    else:
+        form = ContributionObligationForm(
+            instance=obligation
+        )
+
+    return render(
+        request,
+        "contributions/add_obligation.html",
+        {
+            "form": form,
+            "edit_mode": True,
+            "obligation": obligation,
+        },
+    )
+
+
+@superuser_required
+def delete_contribution_obligation(request, pk):
+    obligation = get_object_or_404(
+        ContributionObligation,
+        pk=pk,
+    )
+
+    if request.method == "POST":
+        obligation.delete()
+
+        messages.success(
+            request,
+            "Contribution obligation deleted successfully."
+        )
+
+        return redirect("contribution_obligation_list")
+
+    return render(
+        request,
+        "contributions/delete_obligation.html",
+        {
+            "obligation": obligation,
         },
     )

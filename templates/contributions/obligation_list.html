@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Contribution Obligations</h2>
+            <p class="text-muted mb-0">
+                Manage who each contributor is responsible for.
+            </p>
+        </div>
+
+        {% if user.is_superuser %}
+        <a href="{% url 'add_contribution_obligation' %}"
+           class="btn btn-primary">
+            + Add Contribution
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            {% if obligations %}
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Contributor</th>
+                            <th>For</th>
+                            <th>Amount</th>
+                            <th>Frequency</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Status</th>
+                            {% if user.is_superuser %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for obligation in obligations %}
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    {{ obligation.contributor.full_name }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {% if obligation.beneficiary %}
+                                    {{ obligation.beneficiary.full_name }}
+                                {% else %}
+                                    <span class="badge bg-info">
+                                        Self
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    KES {{ obligation.amount|floatformat:2 }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ obligation.get_frequency_display }}
+                            </td>
+
+                            <td>
+                                {{ obligation.start_date }}
+                            </td>
+
+                            <td>
+                                {% if obligation.end_date %}
+                                    {{ obligation.end_date }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if obligation.is_active %}
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            {% if user.is_superuser %}
+                            <td>
+
+                                <a href="{% url 'edit_contribution_obligation' obligation.pk %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'delete_contribution_obligation' obligation.pk %}"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </a>
+
+                            </td>
+                            {% endif %}
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <h5>No contribution obligations yet.</h5>
+
+                    <p class="text-muted">
+                        Add the first contribution arrangement.
+                    </p>
+
+                    {% if user.is_superuser %}
+                    <a href="{% url 'add_contribution_obligation' %}"
+                       class="btn btn-primary">
+                        Add Contribution
+                    </a>
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

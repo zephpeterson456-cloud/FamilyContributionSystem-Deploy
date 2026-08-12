@@ -92,4 +92,27 @@ path(
     views.settings_view,
     name="settings"
 ),
+path(
+    "contributions/",
+    views.contribution_obligation_list,
+    name="contribution_obligation_list",
+),
+
+path(
+    "contributions/add/",
+    views.add_contribution_obligation,
+    name="add_contribution_obligation",
+),
+
+path(
+    "contributions/edit/<int:pk>/",
+    views.edit_contribution_obligation,
+    name="edit_contribution_obligation",
+),
+
+path(
+    "contributions/delete/<int:pk>/",
+    views.delete_contribution_obligation,
+    name="delete_contribution_obligation",
+),
 ]

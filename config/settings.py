@@ -36,8 +36,14 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://fuzzy-rights-ready-teaches.trycloudflare.com",
+    origin.strip()
+    for origin in os.environ.get(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "",
+    ).split(",")
+    if origin.strip()
 ]
+
 # Application definition
 
 INSTALLED_APPS = [

@@ -138,4 +138,9 @@ path(
     views.add_loan_repayment,
     name="add_loan_repayment",
 ),
+path(
+    "reports/financial-summary/pdf/",
+    views.financial_summary_pdf,
+    name="financial_summary_pdf",
+),
 ]

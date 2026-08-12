@@ -27,10 +27,14 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "fuzzy-rights-ready-teaches.trycloudflare.com",
+    host.strip()
+    for host in os.environ.get(
+        "DJANGO_ALLOWED_HOSTS",
+        "127.0.0.1,localhost",
+    ).split(",")
+    if host.strip()
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     "https://fuzzy-rights-ready-teaches.trycloudflare.com",
 ]

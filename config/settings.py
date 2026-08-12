@@ -40,11 +40,10 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "",
+        "https://family-contribution-system.onrender.com",
     ).split(",")
     if origin.strip()
 ]
-
 # Application definition
 
 INSTALLED_APPS = [

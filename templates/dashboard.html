@@ -157,6 +157,279 @@
 
     </div>
 
+    <!-- Contribution Obligations -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Contribution Obligations</h6>
+                    <h2>{{ total_obligations }}</h2>
+                    <small class="text-muted">
+                        Total obligations
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Active Obligations</h6>
+                    <h2 class="text-success">
+                        {{ active_obligations }}
+                    </h2>
+                    <small class="text-muted">
+                        KES {{ obligation_amount }} active obligation amount
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Inactive Obligations</h6>
+                    <h2 class="text-secondary">
+                        {{ inactive_obligations }}
+                    </h2>
+                    <small class="text-muted">
+                        Currently inactive
+                    </small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Loan Summary -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Loan Summary
+            </h5>
+
+            <a
+                href="{% url 'loan_list' %}"
+                class="btn btn-sm btn-primary">
+                View Loans
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="text-muted">Total Loans</h6>
+                        <h3>{{ total_loans }}</h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="text-muted">Active Loans</h6>
+                        <h3 class="text-primary">
+                            {{ active_loans }}
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="text-muted">Paid Loans</h6>
+                        <h3 class="text-success">
+                            {{ paid_loans }}
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3 h-100">
+                        <h6 class="text-muted">Overdue Loans</h6>
+                        <h3 class="text-danger">
+                            {{ overdue_loans }}
+                        </h3>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Loan Financial Totals -->
+            <div class="row g-3 mt-1">
+
+                <div class="col-md-4">
+                    <div class="card bg-light h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">
+                                Principal Issued
+                            </h6>
+
+                            <h4>
+                                KES {{ total_loan_principal }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">
+                                Amount Repaid
+                            </h6>
+
+                            <h4 class="text-success">
+                                KES {{ total_loan_repaid }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">
+                                Outstanding Loans
+                            </h6>
+
+                            <h4 class="text-danger">
+                                KES {{ loan_outstanding }}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Recent Loans -->
+    <div class="card shadow mb-4">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <h5 class="mb-0">
+                Recent Loans
+            </h5>
+
+            <a
+                href="{% url 'add_loan' %}"
+                class="btn btn-sm btn-success">
+                Add Loan
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped align-middle">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Borrower</th>
+                            <th>Principal</th>
+                            <th>Total Payable</th>
+                            <th>Repaid</th>
+                            <th>Status</th>
+                            <th>Date Issued</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for loan in recent_loans %}
+
+                        <tr>
+
+                            <td>
+                                <a href="{% url 'loan_detail' loan.pk %}">
+                                    {{ loan.borrower.full_name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                KES {{ loan.principal_amount }}
+                            </td>
+
+                            <td>
+                                KES {{ loan.total_payable }}
+                            </td>
+
+                            <td>
+                                KES {{ loan.amount_repaid }}
+                            </td>
+
+                            <td>
+
+                                {% if loan.status == "ACTIVE" %}
+
+                                    <span class="badge bg-primary">
+                                        Active
+                                    </span>
+
+                                {% elif loan.status == "PAID" %}
+
+                                    <span class="badge bg-success">
+                                        Paid
+                                    </span>
+
+                                {% elif loan.status == "OVERDUE" %}
+
+                                    <span class="badge bg-danger">
+                                        Overdue
+                                    </span>
+
+                                {% elif loan.status == "CANCELLED" %}
+
+                                    <span class="badge bg-secondary">
+                                        Cancelled
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ loan.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ loan.date_issued }}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                No loans recorded yet.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- Charts -->
     <div class="row g-3 mb-4">
 

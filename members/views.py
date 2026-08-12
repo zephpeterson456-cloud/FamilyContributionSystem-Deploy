@@ -56,9 +56,17 @@ def home(request):
 
 @login_required
 def dashboard(request):
+    # ========================================================
+    # BASIC COUNTS
+    # ========================================================
+
     total_contributors = Contributor.objects.count()
     total_beneficiaries = Beneficiary.objects.count()
     total_families = Family.objects.count()
+
+    # ========================================================
+    # CONTRIBUTIONS
+    # ========================================================
 
     total_expected = (
         Contributor.objects.aggregate(
@@ -75,10 +83,9 @@ def dashboard(request):
     )
 
     outstanding_balance = total_expected - total_paid
+
     if total_expected > 0:
-        payment_progress = (
-            total_paid / total_expected
-        ) * 100
+        payment_progress = (total_paid / total_expected) * 100
     else:
         payment_progress = 0
 
@@ -98,6 +105,10 @@ def dashboard(request):
         else:
             owing_contributors += 1
 
+    # ========================================================
+    # RECENT PAYMENTS
+    # ========================================================
+
     recent_payments = Payment.objects.order_by(
         "-payment_date"
     )[:5]
@@ -116,24 +127,136 @@ def dashboard(request):
         .order_by("month")
     )
 
+    # ========================================================
+    # CONTRIBUTION OBLIGATIONS
+    # ========================================================
+
+    total_obligations = ContributionObligation.objects.count()
+
+    active_obligations = ContributionObligation.objects.filter(
+        is_active=True
+    ).count()
+
+    inactive_obligations = ContributionObligation.objects.filter(
+        is_active=False
+    ).count()
+
+    obligation_amount = (
+        ContributionObligation.objects.filter(
+            is_active=True
+        ).aggregate(
+            total=Sum("amount")
+        )["total"]
+        or 0
+    )
+
+    # ========================================================
+    # LOANS
+    # ========================================================
+
+    total_loans = Loan.objects.count()
+
+    active_loans = Loan.objects.filter(
+        status="ACTIVE"
+    ).count()
+
+    paid_loans = Loan.objects.filter(
+        status="PAID"
+    ).count()
+
+    overdue_loans = Loan.objects.filter(
+        status="OVERDUE"
+    ).count()
+
+    cancelled_loans = Loan.objects.filter(
+        status="CANCELLED"
+    ).count()
+
+    total_loan_principal = (
+        Loan.objects.aggregate(
+            total=Sum("principal_amount")
+        )["total"]
+        or 0
+    )
+
+    total_loan_payable = (
+        Loan.objects.aggregate(
+            total=Sum("total_payable")
+        )["total"]
+        or 0
+    )
+
+    total_loan_repaid = (
+        LoanRepayment.objects.aggregate(
+            total=Sum("amount")
+        )["total"]
+        or 0
+    )
+
+    loan_outstanding = (
+        total_loan_payable - total_loan_repaid
+    )
+
+    if loan_outstanding < 0:
+        loan_outstanding = 0
+
+    # ========================================================
+    # RECENT LOANS
+    # ========================================================
+
+    recent_loans = (
+        Loan.objects
+        .select_related("borrower")
+        .order_by("-date_issued")[:5]
+    )
+
+    # ========================================================
+    # DASHBOARD CONTEXT
+    # ========================================================
+
     context = {
+        # Basic
         "total_contributors": total_contributors,
         "total_beneficiaries": total_beneficiaries,
         "total_families": total_families,
+
+        # Contributions
         "total_expected": total_expected,
         "total_paid": total_paid,
         "outstanding_balance": outstanding_balance,
         "payment_progress": payment_progress,
         "paid_contributors": paid_contributors,
         "owing_contributors": owing_contributors,
+
+        # Payments
         "recent_payments": recent_payments,
         "payment_methods": list(payment_methods),
         "monthly_payments": list(monthly_payments),
-        "payment_progress": payment_progress,
+
+        # Contribution obligations
+        "total_obligations": total_obligations,
+        "active_obligations": active_obligations,
+        "inactive_obligations": inactive_obligations,
+        "obligation_amount": obligation_amount,
+
+        # Loans
+        "total_loans": total_loans,
+        "active_loans": active_loans,
+        "paid_loans": paid_loans,
+        "overdue_loans": overdue_loans,
+        "cancelled_loans": cancelled_loans,
+        "total_loan_principal": total_loan_principal,
+        "total_loan_payable": total_loan_payable,
+        "total_loan_repaid": total_loan_repaid,
+        "loan_outstanding": loan_outstanding,
+        "recent_loans": recent_loans,
     }
 
-    return render(request, "dashboard.html", context)
-
+    return render(
+        request,
+        "dashboard.html",
+        context,
+    )
 
 # ============================================================
 # CONTRIBUTORS

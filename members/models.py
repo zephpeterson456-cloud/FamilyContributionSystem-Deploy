@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils import timezone
 from .utils  import generate_receipt
 
@@ -12,6 +13,14 @@ class Family(models.Model):
 
 
 class Contributor(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contributor_profile",
+    )
+
     family = models.ForeignKey(
         Family,
         on_delete=models.CASCADE,

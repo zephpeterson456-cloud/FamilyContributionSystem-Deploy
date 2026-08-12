@@ -835,3 +835,109 @@ def delete_contribution_obligation(request, pk):
             "obligation": obligation,
         },
     )
+# ============================================================
+# LOANS
+# ============================================================
+
+@login_required
+def loan_list(request):
+    loans = (
+        Loan.objects
+        .select_related("borrower")
+        .order_by("-date_issued", "-created_at")
+    )
+
+    return render(
+        request,
+        "loans/loan_list.html",
+        {
+            "loans": loans,
+        },
+    )
+
+
+@login_required
+def loan_detail(request, pk):
+    loan = get_object_or_404(
+        Loan.objects.select_related("borrower"),
+        pk=pk,
+    )
+
+    repayments = loan.repayments.order_by(
+        "-payment_date"
+    )
+
+    return render(
+        request,
+        "loans/loan_detail.html",
+        {
+            "loan": loan,
+            "repayments": repayments,
+        },
+    )
+
+
+@superuser_required
+def add_loan(request):
+    if request.method == "POST":
+        form = LoanForm(request.POST)
+
+        if form.is_valid():
+            loan = form.save()
+
+            messages.success(
+                request,
+                "Loan recorded successfully."
+            )
+
+            return redirect(
+                "loan_detail",
+                pk=loan.pk,
+            )
+    else:
+        form = LoanForm()
+
+    return render(
+        request,
+        "loans/add_loan.html",
+        {
+            "form": form,
+        },
+    )
+
+
+@superuser_required
+def add_loan_repayment(request, loan_id):
+    loan = get_object_or_404(
+        Loan,
+        pk=loan_id,
+    )
+
+    if request.method == "POST":
+        form = LoanRepaymentForm(request.POST)
+
+        if form.is_valid():
+            repayment = form.save(commit=False)
+            repayment.loan = loan
+            repayment.save()
+
+            messages.success(
+                request,
+                "Loan repayment recorded successfully."
+            )
+
+            return redirect(
+                "loan_detail",
+                pk=loan.pk,
+            )
+    else:
+        form = LoanRepaymentForm()
+
+    return render(
+        request,
+        "loans/add_repayment.html",
+        {
+            "form": form,
+            "loan": loan,
+        },
+    )

@@ -115,4 +115,27 @@ path(
     views.delete_contribution_obligation,
     name="delete_contribution_obligation",
 ),
+path(
+    "loans/",
+    views.loan_list,
+    name="loan_list",
+),
+
+path(
+    "loans/add/",
+    views.add_loan,
+    name="add_loan",
+),
+
+path(
+    "loans/<int:pk>/",
+    views.loan_detail,
+    name="loan_detail",
+),
+
+path(
+    "loans/<int:loan_id>/repay/",
+    views.add_loan_repayment,
+    name="add_loan_repayment",
+),
 ]

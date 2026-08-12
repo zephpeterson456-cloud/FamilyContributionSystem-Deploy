@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Loan Details</h2>
+
+            <p class="text-muted mb-0">
+                {{ loan.borrower.full_name }}
+            </p>
+        </div>
+
+        <a href="{% url 'loan_list' %}"
+           class="btn btn-secondary">
+            Back to Loans
+        </a>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5>Loan Summary</h5>
+
+                    <hr>
+
+                    <p>
+                        <strong>Borrower:</strong><br>
+                        {{ loan.borrower.full_name }}
+                    </p>
+
+                    <p>
+                        <strong>Principal:</strong><br>
+                        KES {{ loan.principal_amount|floatformat:2 }}
+                    </p>
+
+                    <p>
+                        <strong>Interest:</strong><br>
+                        KES {{ loan.interest_amount|floatformat:2 }}
+                    </p>
+
+                    <p>
+                        <strong>Total Payable:</strong><br>
+                        KES {{ loan.total_payable|floatformat:2 }}
+                    </p>
+
+                    <p>
+                        <strong>Amount Repaid:</strong><br>
+                        KES {{ loan.amount_repaid|floatformat:2 }}
+                    </p>
+
+                    <p>
+                        <strong>Outstanding Balance:</strong><br>
+
+                        <span class="fs-4">
+                            KES {{ loan.balance|floatformat:2 }}
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong><br>
+
+                        {% if loan.status == "PAID" %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif loan.status == "OVERDUE" %}
+                            <span class="badge bg-danger">Overdue</span>
+                        {% elif loan.status == "CANCELLED" %}
+                            <span class="badge bg-secondary">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Active</span>
+                        {% endif %}
+                    </p>
+
+                    {% if user.is_superuser and loan.balance > 0 %}
+                    <a href="{% url 'add_loan_repayment' loan.pk %}"
+                       class="btn btn-success w-100">
+                        Record Repayment
+                    </a>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h5>Repayment History</h5>
+
+                    <hr>
+
+                    {% if repayments %}
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Reference</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                            {% for repayment in repayments %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ repayment.payment_date }}
+                                    </td>
+
+                                    <td>
+                                        KES {{ repayment.amount|floatformat:2 }}
+                                    </td>
+
+                                    <td>
+                                        {{ repayment.payment_method }}
+                                    </td>
+
+                                    <td>
+                                        {{ repayment.reference|default:"—" }}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    {% else %}
+
+                        <div class="text-center py-5">
+
+                            <p class="text-muted">
+                                No repayments recorded yet.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

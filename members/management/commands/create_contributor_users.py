@@ -4,7 +4,7 @@ from members.models import Contributor
 
 
 class Command(BaseCommand):
-    help = "Create and link contributor login accounts"
+    help = "Create or update contributor login accounts"
 
     accounts = [
         ("achanolympia", "Achan Olympia Happy", "achanolympia@456"),
@@ -16,30 +16,38 @@ class Command(BaseCommand):
         User = get_user_model()
 
         for username, name, password in self.accounts:
-            contributor = Contributor.objects.get(full_name=name)
+
+            contributor = Contributor.objects.filter(
+                full_name=name
+            ).first()
 
             user, created = User.objects.get_or_create(
                 username=username,
                 defaults={
-                    "email": contributor.email,
                     "is_active": True,
                     "is_staff": False,
                     "is_superuser": False,
                 },
             )
 
-            user.email = contributor.email
             user.is_active = True
             user.is_staff = False
             user.is_superuser = False
             user.set_password(password)
+
+            if contributor and contributor.email:
+                user.email = contributor.email
+
             user.save()
 
-            contributor.user = user
-            contributor.save(update_fields=["user"])
-
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"{'Created' if created else 'Updated'} {username} -> {name}"
+            if contributor:
+                contributor.user = user
+                contributor.save(update_fields=["user"])
+                result = f"{'Created' if created else 'Updated'} {username} -> {name}"
+            else:
+                result = (
+                    f"{'Created' if created else 'Updated'} {username}; "
+                    f"Contributor '{name}' not found, so account was not linked."
                 )
-            )
+
+            self.stdout.write(self.style.SUCCESS(result))

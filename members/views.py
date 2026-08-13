@@ -619,16 +619,77 @@ def balance_report(request):
 
 @login_required
 def reports(request):
+    # ============================================================
+    # BASIC COUNTS
+    # ============================================================
     contributors = Contributor.objects.count()
     beneficiaries = Beneficiary.objects.count()
     families = Family.objects.count()
 
-    total_collections = (
-        Payment.objects.filter(status="Completed")
+    # ============================================================
+    # CONTRIBUTION RULE
+    # KSh 100 per person, twice per week.
+    # Using 4 weeks as one month.
+    # ============================================================
+    contribution_per_collection = 100
+    collections_per_week = 2
+    weeks_per_month = 4
+
+    total_paying_people = contributors + beneficiaries
+
+    expected_per_collection = (
+        total_paying_people * contribution_per_collection
+    )
+
+    expected_per_week = (
+        expected_per_collection * collections_per_week
+    )
+
+    total_expected = (
+        expected_per_week * weeks_per_month
+    )
+
+    # ============================================================
+    # PAYMENT STATUS TOTALS
+    # ============================================================
+    completed_payments = (
+        Payment.objects
+        .filter(status="Completed")
         .aggregate(total=Sum("amount"))["total"]
         or 0
     )
 
+    pending_payments = (
+        Payment.objects
+        .filter(status="Pending")
+        .aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
+
+    failed_payments = (
+        Payment.objects
+        .filter(status="Failed")
+        .aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
+
+    # Payment counts
+    completed_count = Payment.objects.filter(status="Completed").count()
+    pending_count = Payment.objects.filter(status="Pending").count()
+    failed_count = Payment.objects.filter(status="Failed").count()
+
+    # ============================================================
+    # OUTSTANDING BALANCE
+    # Expected contributions minus completed payments
+    # ============================================================
+    outstanding_balance = total_expected - completed_payments
+
+    if outstanding_balance < 0:
+        outstanding_balance = 0
+
+    # ============================================================
+    # PAYMENT HISTORY
+    # ============================================================
     payments = (
         Payment.objects
         .select_related("contributor")
@@ -639,7 +700,34 @@ def reports(request):
         "contributors": contributors,
         "beneficiaries": beneficiaries,
         "families": families,
-        "total_collections": total_collections,
+
+        "total_paying_people": total_paying_people,
+
+        "contribution_per_collection": contribution_per_collection,
+        "collections_per_week": collections_per_week,
+        "weeks_per_month": weeks_per_month,
+
+        "expected_per_collection": expected_per_collection,
+        "expected_per_week": expected_per_week,
+        "total_expected": total_expected,
+
+        "completed_payments": completed_payments,
+        "pending_payments": pending_payments,
+        "failed_payments": failed_payments,
+
+        # Template-compatible names
+        "total_paid": completed_payments,
+        "total_pending": pending_payments,
+        "total_failed": failed_payments,
+
+        "completed_count": completed_count,
+        "pending_count": pending_count,
+        "failed_count": failed_count,
+
+        "total_collections": completed_payments,
+        "outstanding_balance": outstanding_balance,
+        "outstanding": outstanding_balance,
+
         "payments": payments,
     }
 
@@ -648,6 +736,7 @@ def reports(request):
         "reports/index.html",
         context,
     )
+
 
 @login_required
 def financial_summary_pdf(request):
